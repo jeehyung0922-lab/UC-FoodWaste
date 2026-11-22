@@ -1,0 +1,8 @@
+numpy
+pandas
+Pillow
+matplotlib
+ipykernel
+torch
+torchvision
+segmentation-models-pytorch

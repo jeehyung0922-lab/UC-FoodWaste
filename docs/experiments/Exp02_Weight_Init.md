@@ -102,6 +102,15 @@ foreach ($id in 'Exp02_A_ADE20K','Exp02_B_Random') {
 
 Smoke는 각 arm의 `_smoke` 폴더에 쓰며 정식 학습은 각 초기화에서 다시 시작한다. 실패한 run은 보존하고 새 run root를 쓴다. 공식 ADE20K 파일을 로컬에서 제공하려면 구성에 맞는 이름의 경로를 `--weights`로 지정한다. B에는 `--weights`를 지정할 수 없다.
 
+Random Smoke가 초기 메타데이터 기록에서 중단됐다면 기존 폴더를 보존하고 `--resume` 없이 새 root에서 B만 실행한다. `$py`, `$cli`, `$rand`, `$data`, `$prepared`, `$root`는 위와 같다.
+
+```powershell
+$retryRoot = Join-Path $root ('retry-b-' + (Get-Date -Format 'yyyyMMdd-HHmmss-fff'))
+& $py $cli smoke --batch 2 @rand --data-root $data --prepared $prepared --run-root $retryRoot
+```
+
+B의 `initial_checkpoint.json`에서 `filename`과 `sha256`은 null이며, `initial_state_sha256`과 `transferred_items: 0`을 확인한다. A/B 모두 `source_revision.json`에 시작 시 커밋과 working tree 상태를 남긴다.
+
 ## 학습 결과
 
 미측정. 이번 작업에서 학습하지 않았다.

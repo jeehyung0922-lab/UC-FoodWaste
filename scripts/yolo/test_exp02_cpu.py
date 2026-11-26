@@ -1,5 +1,6 @@
 """Check Exp02 initialization, native loss, and architecture equivalence on CPU."""
 import argparse
+import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from types import SimpleNamespace
@@ -14,7 +15,7 @@ from ultralytics.utils.loss import SemanticSegmentationLoss
 
 from yolo_sem.data import digest, write_json
 from yolo_sem.initialization import MODEL_YAML, initialize, signature, state_hash
-from yolo_sem.model import Exp02Trainer, RectangularTrainer, train
+from yolo_sem.model import Exp02Trainer, RectangularTrainer, git_provenance, train
 from yolo_sem.validation_diagnostic import fp32_loss
 
 
@@ -25,6 +26,56 @@ def trainer_model(config, weights=None):
     trainer.args = SimpleNamespace(**config)
     cfg = weights.yaml if weights is not None else MODEL_YAML
     return trainer.get_model(cfg, weights, verbose=False), trainer.initialization_report
+
+
+def check_train_metadata(data_root, config, expected):
+    """Run production setup through the start callbacks without starting any epochs."""
+    class StopAfterMetadata(Exception):
+        pass
+
+    def start_only(wrapper, *, trainer, pretrained, batch, **kwargs):
+        assert pretrained is config["pretrained"]
+        assert bool(wrapper.ckpt_path) is pretrained
+        instance = object.__new__(trainer)
+        instance.args = SimpleNamespace(seed=config["seed"], pretrained=pretrained, lr0=0.01,
+                                        momentum=0.937, warmup_bias_lr=0.1)
+        instance.data = {"nc": 2, "channels": 3}
+        instance.resume = False
+        weights = wrapper.model if pretrained else None
+        instance.model = instance.get_model(wrapper.model.yaml, weights, verbose=False)
+        assert state_hash(instance.model) == expected["initial_state_sha256"]
+        instance.optimizer = instance.build_optimizer(instance.model, name="auto", decay=0.0005, iterations=120)
+        instance.scheduler = torch.optim.lr_scheduler.LambdaLR(instance.optimizer, lambda _: 1.0)
+        instance.accumulate = 32
+        instance.batch_size = batch
+        instance.amp = True
+        for callback in wrapper.callbacks["on_train_start"]:
+            # Only run callbacks registered by our train() wrapper.
+            if callback.__module__ == "yolo_sem.model":
+                callback(instance)
+        raise StopAfterMetadata
+
+    with TemporaryDirectory() as temporary:
+        scratch = Path(temporary)
+        (scratch / "dataset.yaml").touch()
+        output = scratch / "smoke"
+        args = SimpleNamespace(device=0, prepared=scratch, resume=False, data_root=data_root,
+                               weights=None, save_period=None, batch=2, workers=0)
+        with (patch("yolo_sem.model.require_cuda"), patch.object(torch.cuda, "reset_peak_memory_stats"),
+              patch.object(YOLO, "train", start_only)):
+            try:
+                train(args, config, output, smoke=True)
+            except StopAfterMetadata:
+                pass
+            else:
+                raise AssertionError("Expected to reach the start callbacks")
+        metadata = json.loads((output / "initial_checkpoint.json").read_text(encoding="utf-8"))
+        assert all(metadata[key] == expected[key] for key in expected)
+        asset = data_root / "yolo_weights" / config["weights"] if config["pretrained"] else None
+        assert metadata["filename"] == (asset.name if asset else None)
+        assert metadata["sha256"] == (digest(asset) if asset else None)
+        revision = json.loads((output / "source_revision.json").read_text(encoding="utf-8"))
+        assert revision == git_provenance(ROOT)
 
 
 def main():
@@ -86,6 +137,8 @@ def main():
     assert city_report["transferred_items"] == ade_report["transferred_items"] == 360
     assert random_report["transferred_items"] == 0
     assert len(ade_report["not_transferred"]) == 4
+    check_train_metadata(args.data_root, ade_cfg, ade_report)
+    check_train_metadata(args.data_root, random_cfg, random_report)
     for name in ade_report["not_transferred"]:
         assert torch.equal(ade.state_dict()[name], random.state_dict()[name])
     optimizer_check = object.__new__(Exp02Trainer)

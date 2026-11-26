@@ -146,11 +146,10 @@ def train(args, config, output, smoke):
     if model.task != "semantic":
         raise ValueError(f"Expected a semantic checkpoint, received {model.task}")
     output.mkdir(parents=True, exist_ok=True)
-    if not args.resume and config["pretrained"]:
-        write_json(output / "source_revision.json", git_provenance(Path(__file__).resolve().parents[2]))
     if not args.resume:
-        asset = Path(model.ckpt_path)
-        write_json(output / "initial_checkpoint.json", {"filename": asset.name, "sha256": digest(asset),
+        write_json(output / "source_revision.json", git_provenance(Path(__file__).resolve().parents[2]))
+    if not args.resume and not exp02:
+        write_json(output / "initial_checkpoint.json", {"filename": checkpoint.name, "sha256": digest(checkpoint),
                    "source_classes": len(model.names)})
 
     observed_steps = []

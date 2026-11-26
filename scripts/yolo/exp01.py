@@ -17,17 +17,25 @@ import yaml
 from yolo_sem.data import audit, digest
 from yolo_sem.evaluation import evaluate, predict
 
+EXP02 = {
+    "Exp02_A_ADE20K": ("yolo26s-sem-ade20k.pt", True),
+    "Exp02_B_Random": ("yolo26s-sem.yaml", False),
+}
+
 
 def parse():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("stage", choices=["environment", "import-source", "weights", "audit", "prepare", "smoke", "train",
-                                         "predict", "threshold", "evaluate", "pipeline"])
+                                         "predict", "threshold", "evaluate", "pipeline", "initialization", "diagnose-val-loss"])
     parser.add_argument("--config", type=Path, default=ROOT / "configs/yolo/exp01_rgb.yaml")
     parser.add_argument("--data-root", type=Path, default=os.getenv("UC_FOODWASTE_DATA_ROOT", ROOT / "data"))
     parser.add_argument("--split-csv", type=Path, default=ROOT / "metadata/data_split.csv")
     parser.add_argument("--prepared", type=Path, default=ROOT / "data/yolo_exp01")
     parser.add_argument("--run-root", type=Path, default=ROOT / "runs")
-    parser.add_argument("--weights", type=Path, help="Local official yolo26s-sem.pt asset")
+    parser.add_argument("--weights", type=Path, help="Local pinned official asset for this configuration")
+    parser.add_argument("--save-period", type=int, default=None, help="Keep every N epoch checkpoints; -1 disables")
+    parser.add_argument("--checkpoint", type=Path, help="Existing .pt for diagnose-val-loss")
+    parser.add_argument("--out", type=Path, help="New JSON file for initialization or diagnose-val-loss")
     parser.add_argument("--source-archive", type=Path, help="Original ZIP with images/*.jpg and masks/*.png")
     parser.add_argument("--source-images", type=Path, help="Folder of original .npy/.npz images")
     parser.add_argument("--source-masks", type=Path, help="Folder of original .npy/.npz masks")
@@ -48,10 +56,10 @@ def parse():
         parser.error("--include-test applies to pipeline")
     if args.split == "test" and args.stage not in ("predict", "evaluate"):
         parser.error("--split test applies to predict or evaluate")
-    if args.weights:
-        args.weights = args.weights.resolve()
-        if args.weights.name != "yolo26s-sem.pt" or (args.stage != "weights" and not args.weights.is_file()):
-            parser.error("--weights must point to yolo26s-sem.pt (existing except for weights stage)")
+    if args.save_period is not None and (args.save_period != -1 and args.save_period < 1):
+        parser.error("--save-period must be positive or -1")
+    if args.stage == "diagnose-val-loss" and (not args.checkpoint or not args.out):
+        parser.error("diagnose-val-loss requires --checkpoint and --out")
     has_arrays = bool(args.source_images and args.source_masks)
     any_arrays = bool(args.source_images or args.source_masks)
     if args.stage == "import-source":
@@ -66,6 +74,14 @@ def parse():
 
 def load_config(path):
     config = yaml.safe_load(path.read_text(encoding="utf-8"))
+    if isinstance(config, dict) and config.get("experiment") in EXP02:
+        if set(config) != {"experiment", "weights", "pretrained"} or (
+                config["weights"], config["pretrained"]) != EXP02[config["experiment"]]:
+            raise ValueError("Exp02 config may change only the approved initialization")
+        base = load_config(ROOT / "configs/yolo/exp01_rgb.yaml")
+        if base["connectivity"] != 8 or base["threshold_steps"] != 1000:
+            raise ValueError("Exp02 requires the recorded Exp01 evaluation protocol")
+        return {**base, **config}
     fixed = dict(experiment="Exp01_RGB_Baseline", weights="yolo26s-sem.pt", height=512, width=768,
                  epochs=20, seed=42, pretrained=True, amp=True, names=["Background", "Contaminant"],
                  fpr_limit=0.02, region_overlap=0.10)
@@ -79,15 +95,41 @@ def load_config(path):
 def main():
     args = parse()
     config = load_config(args.config)
+    exp02 = config["experiment"] in EXP02
+    if exp02 and (args.prepare_test or args.include_test or args.split == "test"):
+        raise ValueError("Exp02 is Validation-only")
+    if args.weights:
+        args.weights = args.weights.resolve()
+        if (not config["pretrained"] or args.weights.name != config["weights"]
+                or (args.stage != "weights" and not args.weights.is_file())):
+            raise ValueError("--weights must refer to this experiment's pinned official checkpoint")
+    if exp02 and args.stage in ("train", "pipeline") and (args.batch != 16 or args.workers != 0):
+        raise ValueError("Formal Exp02 runs require batch 16 and workers 0 as in Exp01")
     output = args.run_root / config["experiment"]
     smoke = args.run_root / (config["experiment"] + "_smoke")
     report = args.run_root / "yolo_audit"
     source = args.data_root / "data_processed"
+    if args.stage == "initialization":
+        from yolo_sem.initialization import inspect_initialization
+        result = inspect_initialization(args, config)
+        if args.out:
+            args.out.parent.mkdir(parents=True, exist_ok=True)
+            with args.out.open("x", encoding="utf-8") as stream:
+                json.dump(result, stream, indent=2, allow_nan=False)
+                stream.write("\n")
+        print(json.dumps(result, indent=2))
+        return
+    if args.stage == "diagnose-val-loss":
+        from yolo_sem.validation_diagnostic import diagnose
+        diagnose(args, config)
+        return
     if args.stage == "import-source":
         from yolo_sem.assets import materialize_source
         print(f"Imported {materialize_source(args.data_root, args.split_csv, args.source_archive, args.source_images, args.source_masks, args.mask_key, args.prepare_test)} pairs into {source}")
         return
     if args.stage == "weights":
+        if not config["pretrained"]:
+            raise ValueError("Random initialization has no weights to download")
         from yolo_sem.assets import official_weights
         print(official_weights(args.weights or args.data_root / "yolo_weights" / config["weights"]))
         return

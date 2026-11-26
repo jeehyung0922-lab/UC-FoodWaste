@@ -8,6 +8,13 @@
 |---|---|---|---:|---:|---:|---:|---:|---:|---:|
 | [Exp01_RGB_Baseline](docs/experiments/Exp01_RGB_Baseline.md) | Val 완료 | RGB YOLO26s-sem 기준선 | 18 | 91.25% | 53.66% | 92.22% | 84.40% | 1.7644% | 4.94 ms |
 
+Exp01의 **재현용 파이프라인 기준 커밋**은 `053b2c439290bfd67a23d43d205d1474e374008c`이며 `main`과 `origin/main`에서 확인했다. 당시 GPU 학습에 사용된 working tree의 Git SHA는 미확보다. 향후 기준 태그를 사용한다면 `exp01-reproduction-v1`처럼 재현 코드임을 표시한다.
+
+| 실험 | 초기화 | 상태 |
+|---|---|---|
+| [Exp02_A_ADE20K](docs/experiments/Exp02_Weight_Init.md) | ADE20K 150클래스 사전학습 가중치 | CPU 검증 완료, GPU 진단 및 Smoke 대기 |
+| [Exp02_B_Random](docs/experiments/Exp02_Weight_Init.md) | YOLO26s-sem YAML 랜덤 초기화 | CPU 검증 완료, GPU 진단 및 Smoke 대기 |
+
 Small Region은 평가 격자에서 5,000 px 미만이다. 새 실험은 완료·실패·중단을 포함해 [공통 템플릿](docs/experiments/EXPERIMENT_TEMPLATE.md) 문서와 함께 추가한다. 평가 프로토콜과 추론 측정 구간이 다르면 별도 묶음에 기록한다.
 
 | 항목 | 설정 또는 상태 |

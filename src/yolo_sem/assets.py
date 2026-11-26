@@ -13,14 +13,20 @@ from .data import digest, read_rows
 WEIGHT_NAME = "yolo26s-sem.pt"
 WEIGHT_SHA256 = "bc3e2152329831303de83e1af91d4b57d547e8794de8bb6edb1f2a622d1d5435"
 WEIGHT_URL = "https://github.com/ultralytics/assets/releases/download/v8.4.0/" + WEIGHT_NAME
+ADE20K_NAME = "yolo26s-sem-ade20k.pt"
+WEIGHT_HASHES = {
+    WEIGHT_NAME: WEIGHT_SHA256,
+    ADE20K_NAME: "feb2bd47eed6f721a4588213c670ccdad69c0ba29b4b5f97892df222b18c6c3a",
+}
 
 
 def official_weights(path):
     if not path.exists():
         path.parent.mkdir(parents=True, exist_ok=True)
         with TemporaryDirectory(dir=path.parent) as temp:
-            downloaded = Path(temp) / WEIGHT_NAME
-            with urlopen(WEIGHT_URL, timeout=90) as remote, downloaded.open("xb") as local:
+            downloaded = Path(temp) / path.name
+            url = WEIGHT_URL.rsplit("/", 1)[0] + "/" + path.name
+            with urlopen(url, timeout=90) as remote, downloaded.open("xb") as local:
                 shutil.copyfileobj(remote, local, length=1024 * 1024)
             verify_weights(downloaded)
             # A hard link publishes a verified file without replacing a concurrent download.
@@ -33,8 +39,9 @@ def official_weights(path):
 
 
 def verify_weights(path):
-    if digest(path) != WEIGHT_SHA256:
-        raise ValueError(f"Unexpected SHA-256 for {path}. Use the pinned official {WEIGHT_NAME}.")
+    expected = WEIGHT_HASHES.get(path.name)
+    if expected is None or digest(path) != expected:
+        raise ValueError(f"Unexpected checkpoint name or SHA-256: {path}")
 
 
 def import_archive(archive, destination, rows):

@@ -1,0 +1,3 @@
+experiment: Exp02_A_ADE20K
+weights: yolo26s-sem-ade20k.pt
+pretrained: true

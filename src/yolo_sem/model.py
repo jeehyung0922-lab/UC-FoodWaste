@@ -16,7 +16,7 @@ from ultralytics.nn.tasks import load_checkpoint
 from ultralytics.utils.torch_utils import unwrap_model
 
 from .data import digest, write_json
-from .assets import official_weights, verify_weights
+from .initialization import initialize, resolve_initial_source
 
 HW = (512, 768)
 
@@ -107,8 +107,25 @@ def git_provenance(root):
     return {"commit": commit, "working_tree_dirty": bool(status.strip())}
 
 
+class Exp02Trainer(RectangularTrainer):
+    def get_model(self, cfg=None, weights=None, verbose=True):
+        if self.resume:
+            return super().get_model(cfg=cfg, weights=weights, verbose=verbose)
+        if (weights is None) != (self.args.pretrained is False):
+            raise ValueError("Initialization source does not match the experiment")
+        if weights is not None and weights.yaml["nc"] != 150:
+            raise ValueError("Exp02 pretrained runs require the 150-class ADE20K model")
+        if self.data["nc"] != 2 or self.data["channels"] != 3:
+            raise ValueError("Exp02 requires the Exp01 two-class RGB dataset")
+        model, self.initialization_report = initialize(cfg, weights, self.args.seed, verbose)
+        return model
+
+
 def train(args, config, output, smoke):
     require_cuda(args.device)
+    exp02 = config["experiment"].startswith("Exp02_")
+    if exp02 and ultralytics.__version__ != "8.4.52":
+        raise ValueError("Exp02 requires Ultralytics 8.4.52")
     dataset = args.prepared / "dataset.yaml"
     if not dataset.is_file():
         raise FileNotFoundError("Run prepare first")
@@ -122,13 +139,14 @@ def train(args, config, output, smoke):
     else:
         if output.exists():
             raise FileExistsError(f"Run already exists: {output}. Choose another run root or use --resume.")
-        checkpoint = args.weights or official_weights(args.data_root / "yolo_weights" / config["weights"])
-        verify_weights(checkpoint)
+        checkpoint = resolve_initial_source(args, config)
+        if exp02:
+            torch.manual_seed(config["seed"])
     model = YOLO(checkpoint)
     if model.task != "semantic":
         raise ValueError(f"Expected a semantic checkpoint, received {model.task}")
     output.mkdir(parents=True, exist_ok=True)
-    if not args.resume:
+    if not args.resume and config["pretrained"]:
         write_json(output / "source_revision.json", git_provenance(Path(__file__).resolve().parents[2]))
     if not args.resume:
         asset = Path(model.ckpt_path)
@@ -137,12 +155,30 @@ def train(args, config, output, smoke):
 
     observed_steps = []
 
+    def verify_exp02(trainer):
+        params = trainer.optimizer.param_groups
+        if (type(trainer.optimizer).__name__ != "AdamW"
+                or any(group["initial_lr"] != 0.001667 or group["betas"] != (0.9, 0.999) for group in params)
+                or {g["param_group"]: g["weight_decay"] for g in params} != {"weight": .0005, "bn": 0., "bias": 0.}
+                or not bool(trainer.amp)
+                or trainer.args.warmup_bias_lr != 0.0
+                or trainer.accumulate != max(round(64/trainer.batch_size), 1)
+                or type(trainer.scheduler).__name__ != "LambdaLR"):
+            raise RuntimeError("Effective optimizer, scheduler or AMP differs from Exp01")
+        if not args.resume:
+            report = trainer.initialization_report
+            write_json(output / "initial_checkpoint.json", {
+                "filename": checkpoint.name if config["pretrained"] else None,
+                "sha256": digest(checkpoint) if config["pretrained"] else None,
+                **report,
+            })
+
     def record(trainer):
         status = dict(train=trainer.first_train_batch,
                       val=validate_batch(next(iter(trainer.test_loader))))
         env = environment()
         write_json(output / "environment.json", env)
-        write_json(output / "run_config.json", {
+        payload = {
             "experiment": config, "arguments": vars(trainer.args),
             "optimizer": type(trainer.optimizer).__name__,
             "param_groups": [{k: v for k, v in group.items() if k != "params"}
@@ -152,7 +188,11 @@ def train(args, config, output, smoke):
             "amp_active": bool(trainer.amp), "batch_shapes": status,
             "parameters": sum(p.numel() for p in trainer.model.parameters()),
             "train_transforms": repr(trainer.train_loader.dataset.transforms),
-        })
+        }
+        if exp02:
+            payload.update(gradient_accumulation=trainer.accumulate,
+                           effective_batch=trainer.accumulate * trainer.batch_size)
+        write_json(output / "run_config.json", payload)
 
     def track_optimizer(trainer):
         param = next(p for p in trainer.model.parameters() if p.requires_grad)
@@ -166,16 +206,32 @@ def train(args, config, output, smoke):
 
     if smoke:
         model.add_callback("on_train_start", track_optimizer)
+    if exp02:
+        model.add_callback("on_train_start", verify_exp02)
     model.add_callback("on_train_end", record)
     torch.cuda.reset_peak_memory_stats(args.device)
-    model.train(trainer=RectangularTrainer, data=str(dataset.resolve()), epochs=1 if smoke else config["epochs"],
+    options = {}
+    if exp02:
+        options.update(optimizer="auto", lr0=.01, momentum=.937, weight_decay=.0005,
+                       nbs=64, cos_lr=False, lrf=.01, warmup_epochs=3., warmup_momentum=.8,
+                       warmup_bias_lr=.1, freeze=None, close_mosaic=10, mosaic=0., mixup=0., cutmix=0.,
+                       degrees=0., translate=.1, scale=.5, shear=0., perspective=0., flipud=0., fliplr=.5,
+                       hsv_h=.015, hsv_s=.7, hsv_v=.4, copy_paste=0., multi_scale=0., deterministic=True)
+    if args.save_period is not None or exp02:
+        options["save_period"] = args.save_period if args.save_period is not None else (-1 if smoke else 1)
+    model.train(trainer=Exp02Trainer if exp02 else RectangularTrainer, data=str(dataset.resolve()),
+                epochs=1 if smoke else config["epochs"],
                 imgsz=config["width"], rect=True, seed=config["seed"], amp=config["amp"],
                 batch=args.batch, workers=args.workers, device=args.device, pretrained=config["pretrained"],
                 project=str(output.parent.resolve()), name=output.name, exist_ok=True,
-                resume=str(checkpoint.resolve()) if args.resume else False)
+                resume=str(checkpoint.resolve()) if args.resume else False, **options)
     from shutil import copyfile
     for name in ("best.pt", "last.pt"):
         copyfile(output / "weights" / name, output / name)
+    if exp02:
+        write_json(output / "checkpoint_hashes.json", {
+            name: digest(output / name) for name in ("best.pt", "last.pt")
+        })
     copyfile(output / "results.csv", output / "history.csv")
     copyfile(args.prepared / "dataset_summary.json", output / "dataset_summary.json")
     write_json(output / "train_resources.json", {"peak_gpu_allocated_bytes": torch.cuda.max_memory_allocated(args.device)})

@@ -1,0 +1,3 @@
+experiment: Exp02_B_Random
+weights: yolo26s-sem.yaml
+pretrained: false

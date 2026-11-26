@@ -1,0 +1,23 @@
+{
+  "experiment": "Exp01_RGB_Baseline",
+  "data_release": "UC-FoodWaste project RGB JPG and binary PNG copy used in Exp01",
+  "reference_archive": {
+    "filename": "data_processed.zip",
+    "size_bytes": 228090799,
+    "sha256": "35def06bdfd2a30460b307fc6316ca21240c07adcbbd51c12935f7f3a8e1217a"
+  },
+  "dataset_public_source": "https://github.com/CollaborativeRoboticsLab/UC-Food-Waste",
+  "split": {
+    "path": "metadata/data_split.csv",
+    "sha256_crlf": "66518ca0b69f4a7196a624c9d999ab70d2489cbc415765e97e34cbb3ac63c3a6",
+    "sha256_normalized_lf": "859dcb499be4519087815814d1abd1cdcb00377c9b551a056883047f6a0059ba",
+    "train": 374,
+    "val": 84,
+    "test": 84
+  },
+  "initial_checkpoint": {
+    "filename": "yolo26s-sem.pt",
+    "url": "https://github.com/ultralytics/assets/releases/download/v8.4.0/yolo26s-sem.pt",
+    "sha256": "bc3e2152329831303de83e1af91d4b57d547e8794de8bb6edb1f2a622d1d5435"
+  }
+}

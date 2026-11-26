@@ -13,8 +13,9 @@ import numpy as np
 import pandas as pd
 import torch
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(PROJECT_ROOT / "src"))
+ARCHIVE_ROOT = Path(__file__).resolve().parents[1]
+PROJECT_ROOT = ARCHIVE_ROOT.parents[1]
+sys.path.insert(0, str(ARCHIVE_ROOT / "src"))
 
 from ucfoodwaste.data import (  # noqa: E402
     CHANNELS_BY_MODE,
@@ -42,7 +43,7 @@ def parse_args() -> argparse.Namespace:
         type=Path,
         default=Path(os.environ.get("UC_FOODWASTE_SPLIT_CSV", PROJECT_ROOT / "metadata" / "data_split.csv")),
     )
-    parser.add_argument("--output-dir", type=Path, default=PROJECT_ROOT / "runs")
+    parser.add_argument("--output-dir", type=Path, default=ARCHIVE_ROOT / "runs")
     parser.add_argument("--batch-size", type=int, default=4)
     parser.add_argument("--num-workers", type=int, default=2)
     parser.add_argument("--epochs", type=int, default=50)

@@ -1,0 +1,259 @@
+{
+  "torch": "2.15.0+cpu",
+  "ultralytics": "8.4.52",
+  "fp16_max": 65504.0,
+  "cases": {
+    "small_empty": [
+      {
+        "dtype": "torch.float16",
+        "shape": [
+          1,
+          64,
+          96
+        ],
+        "target_counts": [
+          6144,
+          0
+        ],
+        "intersection": [
+          3072.0,
+          0.0
+        ],
+        "twice_intersection": [
+          6144.0,
+          0.0
+        ],
+        "prediction_mass": [
+          3072.0,
+          3072.0
+        ],
+        "cardinality": [
+          9216.0,
+          3072.0
+        ],
+        "dice_loss": 0.66650390625
+      },
+      {
+        "dtype": "torch.float32",
+        "shape": [
+          1,
+          64,
+          96
+        ],
+        "target_counts": [
+          6144,
+          0
+        ],
+        "intersection": [
+          3072.0,
+          0.0
+        ],
+        "twice_intersection": [
+          6144.0,
+          0.0
+        ],
+        "prediction_mass": [
+          3072.0,
+          3072.0
+        ],
+        "cardinality": [
+          9216.0,
+          3072.0
+        ],
+        "dice_loss": 0.6664859056472778
+      }
+    ],
+    "full_empty": [
+      {
+        "dtype": "torch.float16",
+        "shape": [
+          1,
+          512,
+          768
+        ],
+        "target_counts": [
+          393216,
+          0
+        ],
+        "intersection": [
+          "inf",
+          0.0
+        ],
+        "twice_intersection": [
+          "inf",
+          0.0
+        ],
+        "prediction_mass": [
+          "inf",
+          "inf"
+        ],
+        "cardinality": [
+          "inf",
+          "inf"
+        ],
+        "dice_loss": "nan"
+      },
+      {
+        "dtype": "torch.float32",
+        "shape": [
+          1,
+          512,
+          768
+        ],
+        "target_counts": [
+          393216,
+          0
+        ],
+        "intersection": [
+          196608.0,
+          0.0
+        ],
+        "twice_intersection": [
+          393216.0,
+          0.0
+        ],
+        "prediction_mass": [
+          196608.0,
+          196608.0
+        ],
+        "cardinality": [
+          589824.0,
+          196608.0
+        ],
+        "dice_loss": 0.6666638851165771
+      }
+    ],
+    "full_mixed": [
+      {
+        "dtype": "torch.float16",
+        "shape": [
+          1,
+          512,
+          768
+        ],
+        "target_counts": [
+          294912,
+          98304
+        ],
+        "intersection": [
+          "inf",
+          49152.0
+        ],
+        "twice_intersection": [
+          "inf",
+          "inf"
+        ],
+        "prediction_mass": [
+          "inf",
+          "inf"
+        ],
+        "cardinality": [
+          "inf",
+          "inf"
+        ],
+        "dice_loss": "nan"
+      },
+      {
+        "dtype": "torch.float32",
+        "shape": [
+          1,
+          512,
+          768
+        ],
+        "target_counts": [
+          294912,
+          98304
+        ],
+        "intersection": [
+          147456.0,
+          49152.0
+        ],
+        "twice_intersection": [
+          294912.0,
+          98304.0
+        ],
+        "prediction_mass": [
+          196608.0,
+          196608.0
+        ],
+        "cardinality": [
+          491520.0,
+          294912.0
+        ],
+        "dice_loss": 0.5333317518234253
+      }
+    ],
+    "full_all_ignore": [
+      {
+        "dtype": "torch.float16",
+        "shape": [
+          1,
+          512,
+          768
+        ],
+        "target_counts": [
+          0,
+          0
+        ],
+        "intersection": [
+          0.0,
+          0.0
+        ],
+        "twice_intersection": [
+          0.0,
+          0.0
+        ],
+        "prediction_mass": [
+          0.0,
+          0.0
+        ],
+        "cardinality": [
+          0.0,
+          0.0
+        ],
+        "dice_loss": 0.0
+      },
+      {
+        "dtype": "torch.float32",
+        "shape": [
+          1,
+          512,
+          768
+        ],
+        "target_counts": [
+          0,
+          0
+        ],
+        "intersection": [
+          0.0,
+          0.0
+        ],
+        "twice_intersection": [
+          0.0,
+          0.0
+        ],
+        "prediction_mass": [
+          0.0,
+          0.0
+        ],
+        "cardinality": [
+          0.0,
+          0.0
+        ],
+        "dice_loss": 0.0
+      }
+    ]
+  },
+  "checkpoints": {
+    "best.pt": {
+      "sha256": "0ff4eed9a78467ecc665478ae7d37fac2b75dd2de003fcf793642d8b9e7afda9",
+      "tensors": 364,
+      "nonfinite_float_tensors": 0
+    },
+    "last.pt": {
+      "sha256": "097592dd3d985c39b407eb7b46adb87765b1c63337a2ee22a912d55e2b8d1c64",
+      "tensors": 364,
+      "nonfinite_float_tensors": 0
+    }
+  }
+}

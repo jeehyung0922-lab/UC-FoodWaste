@@ -1,0 +1,8 @@
+# Install torch==2.9.1 and torchvision==0.24.1 from the cu128 index first.
+# Versions recorded on the Exp01 GPU server. Other transitive versions were not captured.
+ultralytics==8.4.52
+numpy==2.5.4
+opencv-python==5.1.0.95
+scipy==1.18.1
+Pillow==13.0.0
+PyYAML==6.0.4

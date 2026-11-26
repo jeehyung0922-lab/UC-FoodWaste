@@ -1,0 +1,48 @@
+{
+  "experiment": "Exp01_RGB_Baseline",
+  "protocol": {
+    "split": "val",
+    "split_sha256": "66518ca0b69f4a7196a624c9d999ab70d2489cbc415765e97e34cbb3ac63c3a6",
+    "provisional": true,
+    "validation_gt_sha256": "239f3b72929fc7ff38540178926da34d3f99e1cca7fafb2f841f5baede830383",
+    "recorded_region_protocol": "provisional; team evaluator unavailable",
+    "threshold_rule": "max region recall, min FPR, highest threshold",
+    "height": 512,
+    "width": 768,
+    "connectivity": 8,
+    "min_overlap": 0.1,
+    "fpr_limit": 0.02,
+    "threshold_steps": 1000,
+    "small_region_max_exclusive_px": 5000,
+    "metric_protocol_id": "ucfw-exp01-provisional-v1"
+  },
+  "best_epoch": 18,
+  "threshold": 0.501,
+  "small_region_recall": 0.5365853658536586,
+  "small_region_count": 41,
+  "region_recall": 0.9125,
+  "pixel_recall": 0.9222065987015132,
+  "iou": 0.8440216718346678,
+  "pixel_fpr": 0.017644308815843446,
+  "parameters": 6498756,
+  "gflops": 16.738615296,
+  "training_seconds": 368.865,
+  "train_peak_allocated_gib": 3.9111075401306152,
+  "inference_peak_allocated_gib": 0.10979461669921875,
+  "inference_mean_ms": 4.940147619024737,
+  "inference_median_ms": 5.04399999999805,
+  "latency_protocol": {
+    "device": "NVIDIA GeForce RTX 5090",
+    "torch": "2.9.1+cu128",
+    "cuda": "12.8",
+    "timing_scope": "CUDA forward, logits interpolation and softmax, batch=1 fp32, one warm-up",
+    "shape": [
+      1,
+      3,
+      512,
+      768
+    ]
+  },
+  "flops_method": "THOP 2.2.5; 2 FLOPs/MAC; unfused eval forward at exact input shape",
+  "ablation": {}
+}

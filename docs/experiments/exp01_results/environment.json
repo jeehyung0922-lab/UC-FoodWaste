@@ -1,0 +1,34 @@
+{
+  "python": "3.13.15 (tags/v3.13.15:4061bc4, Aug  5 2026, 13:05:39) [MSC v.1944 64 bit (AMD64)]",
+  "platform": "Windows-2022Server-10.0.20348-SP0",
+  "torch": "2.9.1+cu128",
+  "ultralytics": "8.4.52",
+  "cuda_build": "12.8",
+  "cuda_available": true,
+  "cuda_arches": [
+    "sm_70",
+    "sm_75",
+    "sm_80",
+    "sm_86",
+    "sm_90",
+    "sm_100",
+    "sm_120"
+  ],
+  "dependencies": {
+    "torchvision": "0.24.1+cu128",
+    "numpy": "2.5.4",
+    "opencv-python": "5.1.0.95",
+    "scipy": "1.18.1",
+    "Pillow": "13.0.0",
+    "PyYAML": "6.0.4"
+  },
+  "devices": [
+    {
+      "name": "NVIDIA GeForce RTX 5090",
+      "capability": [
+        12,
+        0
+      ]
+    }
+  ]
+}

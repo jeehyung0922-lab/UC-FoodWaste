@@ -1,0 +1,63 @@
+{
+  "tp": 4873647,
+  "fp": 489548,
+  "fn": 411120,
+  "tn": 27255829,
+  "regions_detected": 219,
+  "regions": 240,
+  "region_recall": 0.9125,
+  "pixel_recall": 0.9222065987015132,
+  "iou": 0.8440216718346678,
+  "pixel_fpr": 0.017644308815843446,
+  "pixel_precision": 0.9087208277901512,
+  "dice": 0.9154140482469791,
+  "split": "val",
+  "images": 84,
+  "threshold": 0.501,
+  "region_protocol": "provisional; team evaluator unavailable",
+  "provisional_spro": 0.8243485880615933,
+  "provisional_auspro": 0.7054760921719772,
+  "clean_group_b": {
+    "images": 20,
+    "false_alarm_image_fraction": 0.1,
+    "mean_predicted_area_fraction": 0.002358754475911458
+  },
+  "inference": {
+    "identity": {
+      "checkpoint_sha256": "0ff4eed9a78467ecc665478ae7d37fac2b75dd2de003fcf793642d8b9e7afda9",
+      "split_sha256": "66518ca0b69f4a7196a624c9d999ab70d2489cbc415765e97e34cbb3ac63c3a6",
+      "prepared_manifest_sha256": "80409c70ddd14ba63dce398d82da2d12332f0219d5da9d3163fe5b09225506f9",
+      "evaluation_config": {
+        "experiment": "Exp01_RGB_Baseline",
+        "weights": "yolo26s-sem.pt",
+        "height": 512,
+        "width": 768,
+        "epochs": 20,
+        "seed": 42,
+        "pretrained": true,
+        "amp": true,
+        "names": [
+          "Background",
+          "Contaminant"
+        ],
+        "fpr_limit": 0.02,
+        "threshold_steps": 1000,
+        "connectivity": 8,
+        "region_overlap": 0.1
+      }
+    },
+    "split": "val",
+    "images": 84,
+    "parameters": 6498756,
+    "tensor_shape": [
+      1,
+      3,
+      512,
+      768
+    ],
+    "mean_inference_ms": 4.940147619024737,
+    "median_inference_ms": 5.04399999999805,
+    "peak_gpu_allocated_bytes": 117891072,
+    "timing_scope": "CUDA forward, logits interpolation and softmax, batch=1 fp32, one warm-up"
+  }
+}

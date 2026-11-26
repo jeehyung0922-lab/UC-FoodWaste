@@ -1,0 +1,13 @@
+experiment: Exp01_RGB_Baseline
+weights: yolo26s-sem.pt
+height: 512
+width: 768
+epochs: 20
+seed: 42
+pretrained: true
+amp: true
+names: [Background, Contaminant]
+fpr_limit: 0.02
+threshold_steps: 1000
+connectivity: 8
+region_overlap: 0.10

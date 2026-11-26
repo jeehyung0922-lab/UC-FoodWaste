@@ -1,0 +1,2 @@
+# Reproduce the historical split file bytes on Windows and Linux/Colab.
+metadata/data_split.csv text eol=crlf

@@ -1,0 +1,36 @@
+{
+  "best_epoch": 18,
+  "last_epoch": 20,
+  "criterion": "Ultralytics Validation mIoU",
+  "best_miou": 0.90602,
+  "identities": {
+    "threshold": 0.501,
+    "selected_on": "val",
+    "identity": {
+      "checkpoint_sha256": "0ff4eed9a78467ecc665478ae7d37fac2b75dd2de003fcf793642d8b9e7afda9",
+      "split_sha256": "66518ca0b69f4a7196a624c9d999ab70d2489cbc415765e97e34cbb3ac63c3a6",
+      "prepared_manifest_sha256": "80409c70ddd14ba63dce398d82da2d12332f0219d5da9d3163fe5b09225506f9",
+      "evaluation_config": {
+        "experiment": "Exp01_RGB_Baseline",
+        "weights": "yolo26s-sem.pt",
+        "height": 512,
+        "width": 768,
+        "epochs": 20,
+        "seed": 42,
+        "pretrained": true,
+        "amp": true,
+        "names": [
+          "Background",
+          "Contaminant"
+        ],
+        "fpr_limit": 0.02,
+        "threshold_steps": 1000,
+        "connectivity": 8,
+        "region_overlap": 0.1
+      }
+    },
+    "tie_break": "max region recall, min FPR, highest threshold",
+    "provisional": true
+  },
+  "last_sha256": "097592dd3d985c39b407eb7b46adb87765b1c63337a2ea912d55e2b8d1c64"
+}

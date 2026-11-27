@@ -1,0 +1,7 @@
+{
+  "positive_class": "Contaminant",
+  "grid": "ucfw-val-512x768-aligned",
+  "quantity": "probability",
+  "thresholded": false,
+  "probability_method": "Replace with the actual contaminant class mapping, sigmoid/softmax, and spatial alignment used when exporting these maps."
+}

@@ -1,0 +1,28 @@
+{
+  "id": "ucfw-common-v0.1-provisional",
+  "split": "val",
+  "shape": [
+    512,
+    768
+  ],
+  "dtype": "float32",
+  "region_definition": "source_polygon",
+  "region_overlap": 0.1,
+  "fpr_cap": 0.02,
+  "threshold_steps": 1000,
+  "threshold_operator": ">=",
+  "threshold_order": [
+    "region_recall",
+    "spro",
+    "highest_threshold"
+  ],
+  "spro": "mean(min(overlap/0.1,1))",
+  "auspro": "max sPRO at duplicate FPR; linear boundary; normalized trapezoid",
+  "size_edges_px": [
+    0,
+    1000,
+    5000,
+    10000,
+    25000
+  ]
+}

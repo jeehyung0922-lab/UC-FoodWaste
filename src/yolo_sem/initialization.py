@@ -44,6 +44,8 @@ def state_hash(model):
 
 
 def initialize(cfg, source, seed, verbose=False):
+    # Ultralytics updates a shared YAML dict's nc when constructing the target model.
+    source_classes = source.yaml["nc"] if source is not None else None
     torch.manual_seed(seed)
     model = SemanticSegmentationModel(cfg, nc=2, ch=3, verbose=verbose)
     parameters = sum(p.numel() for p in model.parameters())
@@ -77,7 +79,7 @@ def initialize(cfg, source, seed, verbose=False):
     metadata = dict(mode="pretrained" if source is not None else "random", seed=seed,
                     architecture=MODEL_YAML, architecture_sha256=signature(model),
                     initial_state_sha256=state_hash(model), parameters=parameters,
-                    target_items=len(target), source_classes=source.yaml["nc"] if source is not None else None,
+                    target_items=len(target), source_classes=source_classes,
                     transferred_items=len(transferred), transferred_keys=transferred, not_transferred=ignored)
     return model, metadata
 

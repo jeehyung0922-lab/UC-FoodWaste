@@ -70,6 +70,7 @@ def check_train_metadata(data_root, config, expected):
             else:
                 raise AssertionError("Expected to reach the start callbacks")
         metadata = json.loads((output / "initial_checkpoint.json").read_text(encoding="utf-8"))
+        assert metadata["source_classes"] == (150 if config["pretrained"] else None)
         assert all(metadata[key] == expected[key] for key in expected)
         asset = data_root / "yolo_weights" / config["weights"] if config["pretrained"] else None
         assert metadata["filename"] == (asset.name if asset else None)
@@ -139,6 +140,7 @@ def main():
     assert len(ade_report["not_transferred"]) == 4
     check_train_metadata(args.data_root, ade_cfg, ade_report)
     check_train_metadata(args.data_root, random_cfg, random_report)
+    assert [report["source_classes"] for report in (city_report, ade_report, random_report)] == [19, 150, None]
     for name in ade_report["not_transferred"]:
         assert torch.equal(ade.state_dict()[name], random.state_dict()[name])
     optimizer_check = object.__new__(Exp02Trainer)

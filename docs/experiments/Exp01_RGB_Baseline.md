@@ -66,7 +66,7 @@ threshold **0.501**, 후보 1,002개 중 FPR 조건 만족 585개. 전체 픽셀
 14장, 21개 영역을 놓쳤다. 5,000 px 미만의 미탐은 19/41, 그 이상의 미탐은 2/199다. Group A FPR 2.6646%, A FP 중 80.64%가 GT 16 px 이내, 96.95%가 GT에 겹치는 예측 성분에 연결된다. Group B는 2/20장 오탐이며 `image000300` 18,544 px, `image000304` 6 px다. 전자는 Clean 주석 검토 대상이다. 로컬 보고서 `runs/Exp01_RGB_Baseline/error_analysis/REPORT.md`에 상세 사례가 있다.
 
 ## 기술적 문제
-Val Dice loss는 20개 epoch 모두 NaN이었다. Ultralytics Val FP16 Dice 누적 overflow를 CPU에서 재현했다. Train 손실, mIoU 및 가중치 텐서는 유한했다. GPU에서 수정 검증은 아직 하지 않았다. [원인과 해결 후보](../TROUBLESHOOTING.md)
+Val Dice loss는 20개 epoch 모두 NaN이었다. Ultralytics Val FP16 Dice 누적 overflow를 CPU에서 재현했다. Train 손실, mIoU 및 가중치 텐서는 유한했다. 고정 best 체크포인트의 별도 GPU 진단에서 FP16 Dice는 1.0000으로 포화됐고, 동일 FP16 logits의 FP32 Dice loss는 0.133494였다. 학습 코드 수정은 적용하지 않았다. [GPU 진단과 해석](exp02_results/README.md#validation-dice-loss)
 
 ## 결과 해석
 전체 Validation FPR 기준을 충족했고 비교용 가중치와 확률맵을 확보했다. 영역 성능은 객체 면적 및 그룹 구성에 따라 달랐다. A의 오탐 거리는 경계 확장 가설을 뒷받침하며 원본 주석 정확성이나 인과관계까지 판단할 수 없다.
@@ -78,7 +78,7 @@ Val Dice loss는 20개 epoch 모두 NaN이었다. Ultralytics Val FP16 Dice 누�
 연구용 RGB 기준선의 산출물과 FPR 제한 충족은 확인됐다. 영역 기반 팀 간 비교와 최종 Test 결론은 보류한다.
 
 ## 후속 실험 방향
-팀 평가기를 확보해 저장 확률맵을 재평가하고, 추가 학습 전에 Val Dice FP32 계산을 GPU에서 검증한다. 작은 영역, A 경계, B 고신뢰 사례를 승인된 설계에서 검토한다.
+팀 평가기를 확보해 저장 확률맵을 재평가한다. Validation-only GPU 진단을 기준으로 FP32 loss 변경이 필요한지 검토한다. 작은 영역, A 경계, B 고신뢰 사례를 승인된 설계에서 검토한다.
 
 ## 관련 코드 및 산출물 경로
 [실행 진입점](../../scripts/yolo/exp01.py) · [모델](../../src/yolo_sem/model.py) · [평가](../../src/yolo_sem/evaluation.py) · [공개용 원자료와 설정](exp01_results/README.md). 로컬 `runs/Exp01_RGB_Baseline/`의 `args.yaml`, `run_config.json`, `environment.json`, `history.csv`, `best.pt`, `probability_maps/val/`, `threshold_search.csv`, `val_metrics.json`, `val_results.csv`, `figures/`, `error_analysis/`을 사용했다.

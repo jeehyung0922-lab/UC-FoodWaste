@@ -14,4 +14,6 @@
 
 Exp01 Validation은 제한 조건에서 219/240 영역을 검출했다. 5,000 px 미만에 미탐이 집중됐고 A는 GT 인접 오탐, B는 단일 고신뢰 사례의 영향이 컸다. 팀원 평가 영역 수가 달라 영역 지표는 잠정이다. RTX 5090에서 측정한 처리 시간은 배치 1 CUDA forward·보간·softmax 구간에 한정된다. [Exp01 근거](experiments/Exp01_RGB_Baseline.md)
 
+Exp02의 단일 seed·20 epoch 잠정 Validation에서 ADE20K/Random은 각각 222/240 및 193/240 영역을 검출했다. ADE20K는 Cityscapes보다 전체 FPR도 높았고, 비슷한 FPR 상한에서 차이는 한 영역으로 줄었다. 작은 영역을 구간별로 나누면 ADE20K의 증가가 1,000–<5,000 px에 집중되고 1,000 px 미만에서는 검출 수가 줄었다. [대응 영역 비교](experiments/exp02_results/README.md)
+
 향후 기여 후보는 동일한 FPR 제한 아래서 작은 이물질을 더 잘 검출하는 방법, 경계 오류와 배경 독립 오탐을 분리하는 오류 분류, 사전 정의된 비교·Ablation으로 계산량 대비 성능을 검증하는 절차다. 해당 항목은 실험 가설이며 현재 확인된 기여로 간주하지 않는다.

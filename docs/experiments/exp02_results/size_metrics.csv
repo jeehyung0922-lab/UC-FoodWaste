@@ -1,0 +1,16 @@
+model,min_area_px,max_area_exclusive_px,total,detected
+Cityscapes,0,1000,13,5
+Cityscapes,1000,5000,28,17
+Cityscapes,5000,10000,38,37
+Cityscapes,10000,25000,108,108
+Cityscapes,25000,,53,52
+ADE20K,0,1000,13,3
+ADE20K,1000,5000,28,21
+ADE20K,5000,10000,38,37
+ADE20K,10000,25000,108,108
+ADE20K,25000,,53,53
+Random,0,1000,13,3
+Random,1000,5000,28,10
+Random,5000,10000,38,28
+Random,10000,25000,108,101
+Random,25000,,53,51

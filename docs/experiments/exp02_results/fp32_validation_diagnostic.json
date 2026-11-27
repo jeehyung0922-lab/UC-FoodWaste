@@ -1,0 +1,55 @@
+{
+  "checkpoint_sha256": "0ff4eed9a78467ecc665478ae7d37fac2b75dd2de003fcf793642d8b9e7afda9",
+  "split": "val",
+  "images": 84,
+  "batch": 16,
+  "batches": 6,
+  "losses": {
+    "native_fp16": {
+      "ce": {
+        "nonfinite_batches": 0,
+        "mean": 0.0805040995279948
+      },
+      "dice": {
+        "nonfinite_batches": 0,
+        "mean": 1.0
+      },
+      "aux": {
+        "nonfinite_batches": 0,
+        "mean": 0.0
+      }
+    },
+    "fp32_loss_on_same_fp16_logits": {
+      "ce": {
+        "nonfinite_batches": 0,
+        "mean": 0.08051883444810908
+      },
+      "dice": {
+        "nonfinite_batches": 0,
+        "mean": 0.13349351286888123
+      },
+      "aux": {
+        "nonfinite_batches": 0,
+        "mean": 0.0
+      }
+    },
+    "full_fp32": {
+      "ce": {
+        "nonfinite_batches": 0,
+        "mean": 0.08053206015999119
+      },
+      "dice": {
+        "nonfinite_batches": 0,
+        "mean": 0.13349794348080954
+      },
+      "aux": {
+        "nonfinite_batches": 0,
+        "mean": 0.0
+      }
+    }
+  },
+  "miou_native_fp16": 0.9060196876525879,
+  "miou_fp32_loss_on_same_fp16_logits": 0.9060196876525879,
+  "miou_full_fp32": 0.9060143232345581,
+  "prediction_disagreement_pixels": 913
+}

@@ -1,0 +1,166 @@
+{
+  "runs": [
+    {
+      "model": "Cityscapes",
+      "checkpoint_hashes": {
+        "best.pt": "0ff4eed9a78467ecc665478ae7d37fac2b75dd2de003fcf793642d8b9e7afda9",
+        "last.pt": "097592dd3d985c39b407eb7b46adb87765b1c63337a2ee22a912d55e2b8d1c64"
+      },
+      "epoch_checkpoint_crc_verified": 0,
+      "inference_manifest": {
+        "checkpoint_sha256": "0ff4eed9a78467ecc665478ae7d37fac2b75dd2de003fcf793642d8b9e7afda9",
+        "split_sha256": "66518ca0b69f4a7196a624c9d999ab70d2489cbc415765e97e34cbb3ac63c3a6",
+        "prepared_manifest_sha256": "80409c70ddd14ba63dce398d82da2d12332f0219d5da9d3163fe5b09225506f9",
+        "evaluation_config": {
+          "experiment": "Exp01_RGB_Baseline",
+          "weights": "yolo26s-sem.pt",
+          "height": 512,
+          "width": 768,
+          "epochs": 20,
+          "seed": 42,
+          "pretrained": true,
+          "amp": true,
+          "names": [
+            "Background",
+            "Contaminant"
+          ],
+          "fpr_limit": 0.02,
+          "threshold_steps": 1000,
+          "connectivity": 8,
+          "region_overlap": 0.1
+        }
+      },
+      "source_revision": null,
+      "initial_checkpoint": {
+        "filename": "yolo26s-sem.pt",
+        "sha256": "bc3e2152329831303de83e1af91d4b57d547e8794de8bb6edb1f2a622d1d5435",
+        "initial_state_sha256": null,
+        "transferred_items": null,
+        "source_classes": 19,
+        "architecture_sha256": null
+      },
+      "probability_files": 84,
+      "min_probability": 1.6427948139607906e-05,
+      "max_probability": 0.9999908208847046,
+      "shape": [
+        512,
+        768
+      ],
+      "dtype": "float32",
+      "thresholds_verified": 1002,
+      "mismatched_control_settings": {},
+      "environment": "2.9.1+cu128"
+    },
+    {
+      "model": "ADE20K",
+      "checkpoint_hashes": {
+        "best.pt": "bb61e53ab1a3c29e4e5fe67809824ae2711abe28981e554870e6c7b1eb303a12",
+        "last.pt": "2d2375273460484b6a9d202317d8d0d7b804548f839359648d58fa9d3b9d0b45"
+      },
+      "epoch_checkpoint_crc_verified": 20,
+      "inference_manifest": {
+        "checkpoint_sha256": "bb61e53ab1a3c29e4e5fe67809824ae2711abe28981e554870e6c7b1eb303a12",
+        "split_sha256": "66518ca0b69f4a7196a624c9d999ab70d2489cbc415765e97e34cbb3ac63c3a6",
+        "prepared_manifest_sha256": "80409c70ddd14ba63dce398d82da2d12332f0219d5da9d3163fe5b09225506f9",
+        "evaluation_config": {
+          "experiment": "Exp02_A_ADE20K",
+          "weights": "yolo26s-sem-ade20k.pt",
+          "height": 512,
+          "width": 768,
+          "epochs": 20,
+          "seed": 42,
+          "pretrained": true,
+          "amp": true,
+          "names": [
+            "Background",
+            "Contaminant"
+          ],
+          "fpr_limit": 0.02,
+          "threshold_steps": 1000,
+          "connectivity": 8,
+          "region_overlap": 0.1
+        }
+      },
+      "source_revision": {
+        "commit": "812e2d02a30f71071a2d5089294970d95e4810f1",
+        "working_tree_dirty": false
+      },
+      "initial_checkpoint": {
+        "filename": "yolo26s-sem-ade20k.pt",
+        "sha256": "feb2bd47eed6f721a4588213c670ccdad69c0ba29b4b5f97892df222b18c6c3a",
+        "initial_state_sha256": "e771c89abb0e3a46711e0c0327effed57626ace689fb5944e7598ca36ccfb9ff",
+        "transferred_items": 360,
+        "source_classes": 2,
+        "architecture_sha256": "6822beb847d354976d6d742c3942d78a8e7589a5ad0deb37c9ebcc15235c3585"
+      },
+      "probability_files": 84,
+      "min_probability": 5.218537808104884e-06,
+      "max_probability": 0.9999967813491821,
+      "shape": [
+        512,
+        768
+      ],
+      "dtype": "float32",
+      "thresholds_verified": 1002,
+      "mismatched_control_settings": {},
+      "environment": "2.9.1+cu128"
+    },
+    {
+      "model": "Random",
+      "checkpoint_hashes": {
+        "best.pt": "f47d47426b3860ab92a75648ef2827f9fd7c64c7e768b2ecb16ad571bb428fd9",
+        "last.pt": "113a9e834e02ec3461241e0e050c782e82e61c8402cdf22682fd62f2c718fc90"
+      },
+      "epoch_checkpoint_crc_verified": 20,
+      "inference_manifest": {
+        "checkpoint_sha256": "f47d47426b3860ab92a75648ef2827f9fd7c64c7e768b2ecb16ad571bb428fd9",
+        "split_sha256": "66518ca0b69f4a7196a624c9d999ab70d2489cbc415765e97e34cbb3ac63c3a6",
+        "prepared_manifest_sha256": "80409c70ddd14ba63dce398d82da2d12332f0219d5da9d3163fe5b09225506f9",
+        "evaluation_config": {
+          "experiment": "Exp02_B_Random",
+          "weights": "yolo26s-sem.yaml",
+          "height": 512,
+          "width": 768,
+          "epochs": 20,
+          "seed": 42,
+          "pretrained": false,
+          "amp": true,
+          "names": [
+            "Background",
+            "Contaminant"
+          ],
+          "fpr_limit": 0.02,
+          "threshold_steps": 1000,
+          "connectivity": 8,
+          "region_overlap": 0.1
+        }
+      },
+      "source_revision": {
+        "commit": "812e2d02a30f71071a2d5089294970d95e4810f1",
+        "working_tree_dirty": false
+      },
+      "initial_checkpoint": {
+        "filename": null,
+        "sha256": null,
+        "initial_state_sha256": "4adb92f72228da1778cb7a9eb5a789f0d5e09d2f548bf8a1adf867aa6c726952",
+        "transferred_items": 0,
+        "source_classes": null,
+        "architecture_sha256": "6822beb847d354976d6d742c3942d78a8e7589a5ad0deb37c9ebcc15235c3585"
+      },
+      "probability_files": 84,
+      "min_probability": 0.0005646919016726315,
+      "max_probability": 0.9996777772903442,
+      "shape": [
+        512,
+        768
+      ],
+      "dtype": "float32",
+      "thresholds_verified": 1002,
+      "mismatched_control_settings": {},
+      "environment": "2.9.1+cu128"
+    }
+  ],
+  "exp01_artifacts_unchanged": 369,
+  "split_sha256": "66518ca0b69f4a7196a624c9d999ab70d2489cbc415765e97e34cbb3ac63c3a6",
+  "prepared_manifest_sha256": "80409c70ddd14ba63dce398d82da2d12332f0219d5da9d3163fe5b09225506f9"
+}

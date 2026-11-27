@@ -2,7 +2,7 @@
 
 ## 실험 비교 인덱스
 
-아래 값은 동일한 잠정 Validation 프로토콜의 결과다. 영역 기반 값은 팀 평가기 정합성 확인 후 업데이트한다. 링크된 개별 문서에 상세 근거를 보존한다.
+아래 비교는 동일한 잠정 Validation 프로토콜, 단일 seed 42, 20 epochs 기준이다. 영역 기반 값은 팀 평가기 정합성 확인 후 업데이트한다. 링크된 개별 문서에 상세 근거를 보존한다.
 
 | 실험 | 상태 | 비교 요인 | Best epoch | Region Recall | Small Region Recall | Pixel Recall | IoU | FPR | 평균 추론 |
 |---|---|---|---:|---:|---:|---:|---:|---:|---:|
@@ -12,8 +12,10 @@ Exp01의 **재현용 파이프라인 기준 커밋**은 `053b2c439290bfd67a23d43
 
 | 실험 | 초기화 | 상태 |
 |---|---|---|
-| [Exp02_A_ADE20K](docs/experiments/Exp02_Weight_Init.md) | ADE20K 150클래스 사전학습 가중치 | CPU 검증 완료, GPU 진단 및 Smoke 대기 |
-| [Exp02_B_Random](docs/experiments/Exp02_Weight_Init.md) | YOLO26s-sem YAML 랜덤 초기화 | CPU 검증 완료, GPU 진단 및 Smoke 대기 |
+| [Exp02_A_ADE20K](docs/experiments/Exp02_Weight_Init.md) | ADE20K 150클래스 사전학습 가중치 | 20 epochs 및 잠정 Validation 완료 |
+| [Exp02_B_Random](docs/experiments/Exp02_Weight_Init.md) | YOLO26s-sem YAML 랜덤 초기화 | 20 epochs 및 잠정 Validation 완료 |
+
+Exp02-A/B GPU 실행은 clean `812e2d02a30f71071a2d5089294970d95e4810f1`이다. Seed 42, 20 epochs, 잠정 Validation에서 ADE20K/Random은 각각 Region Recall 92.50%/80.42%, Small Region Recall 58.54%/31.71%, Pixel Recall 93.59%/79.11%, Contaminant IoU 84.82%/72.05%, FPR 1.9689%/1.8676%였다. 두 모델에 같은 1.7644% FPR 상한을 적용한 사후 비교에서 ADE20K와 Cityscapes의 차이는 한 영역이었다(220/240 대 219/240). 팀 공통 평가와 반복 실행 전에는 최종 초기화 방식을 확정하지 않는다. [비교·검증 및 FP32 진단](docs/experiments/exp02_results/README.md)
 
 Small Region은 평가 격자에서 5,000 px 미만이다. 새 실험은 완료·실패·중단을 포함해 [공통 템플릿](docs/experiments/EXPERIMENT_TEMPLATE.md) 문서와 함께 추가한다. 평가 프로토콜과 추론 측정 구간이 다르면 별도 묶음에 기록한다.
 

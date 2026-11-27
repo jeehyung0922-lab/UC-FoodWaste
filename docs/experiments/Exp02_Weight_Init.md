@@ -2,7 +2,7 @@
 
 ## Experiment ID 및 상태
 
-`Exp02_A_ADE20K`과 `Exp02_B_Random`은 CPU 초기화 및 모델 검증 완료, GPU Smoke 전 상태다. Git 브랜치는 `experiment/exp02-weight-init`이다. Exp01의 재현용 Git 기준은 `053b2c439290bfd67a23d43d205d1474e374008c`이며 당시 GPU 학습 실행본의 Git SHA는 미확보다.
+`Exp02_A_ADE20K`와 `Exp02_B_Random`의 GPU 학습 20 epochs, Validation, 잠정 평가 및 오류 분석이 완료됐다. 둘 다 clean `812e2d02a30f71071a2d5089294970d95e4810f1`에서 실행했다. Exp01 재현용 기준은 `053b2c439290bfd67a23d43d205d1474e374008c`이며 당시 GPU 학습 실행본 Git SHA는 미확보다. [검증 및 비교 보고서](exp02_results/README.md)
 
 ## 실험 목적
 
@@ -113,27 +113,27 @@ B의 `initial_checkpoint.json`에서 `filename`과 `sha256`은 null이며, `init
 
 ## 학습 결과
 
-미측정. 이번 작업에서 학습하지 않았다.
+두 arm 모두 20 epochs를 마쳤다. Best는 둘 다 epoch 19이며 Val mIoU는 ADE20K 90.996%, Random 83.258%였다. Cityscapes는 epoch 9, ADE20K는 11에 mIoU 85%에 처음 도달했고 Random은 도달하지 못했다. [Epoch별 비교](exp02_results/learning_history.csv)
 
 ## Validation 성능
 
-미측정. 기존 Exp01 값 외에 Exp02 결과 수치를 생성하지 않았다.
+잠정 Validation에서 ADE20K/Random의 Region Recall은 92.50%/80.42%, Small Region Recall은 58.54%/31.71%, Contaminant IoU는 84.82%/72.05%였다. 전체 FPR은 1.9689%/1.8676%이고 threshold는 0.378/0.508이다. [전체 지표 및 비교](exp02_results/README.md#학습과-잠정-validation)
 
 ## 시각화
 
-실행 결과로 learning curves, threshold sweep, 그룹 비교, 오류 분석, 비용 비교를 생성한다. 현재 Exp02 결과 그림은 없다.
+서버가 생성한 개별 그림과 비교표를 검증해 재사용한다. [세 모델 학습 곡선](exp02_results/learning_comparison.png)과 [대응 영역·크기 비교](exp02_results/paired_region_comparison.png)를 추가했다.
 
 ## Error Analysis
 
-각 arm에서 저장한 Val 확률맵을 사용한다. 작은 영역은 현재 문서화 기준에 따라 5,000 px 미만을 별도 집계한다.
+5,000 px 미만 검출 수는 Cityscapes/ADE20K/Random 각각 22/24/13개(전체 41개)였다. 공통 미탐 13개 중 12개가 이 범위에 속한다. Cityscapes 대비 ADE20K에서 새로 검출한 영역 7개와 놓친 영역 4개를 확인했다. [대응 영역과 그룹별 FP](exp02_results/README.md#대응-영역-오류)
 
 ## 기술적 문제
 
-Exp01 Val Dice loss에서 FP16 누적 overflow가 재현됐다. 진단 명령은 GPU에서 기존 체크포인트로 84장 Val만 읽고, native FP16, 동일 FP16 logits의 FP32 loss, 전체 FP32를 분리해 기록한다. 동일 logits에 대한 loss 계산 precision만 바꿀 때는 동일 예측으로 mIoU를 계산한다. 전체 FP32 forward의 mIoU 차이는 별도로 저장한다. GPU 진단 전 실제 학습 코드, loss와 체크포인트 선정은 그대로 둔다.
+세 run의 Validation Dice loss는 20/20 epoch NaN이었다. Exp01 체크포인트의 GPU 진단에서 FP16 Dice는 1.0000, 동일 logits의 FP32 loss는 0.133494였다. 동일 logits의 mIoU는 유지됐고 전체 FP32 forward는 913픽셀이 달랐다. 실제 학습 loss 및 체크포인트 선정 경로는 보존했다. A의 전이 메타데이터에는 `source_classes: 2`가 적혔으나 원본 가중치 로드 결과와 전이 제외층 원본 shape에서 150클래스를 확인했다. [진단 및 메타데이터 차이](exp02_results/README.md)
 
 ## 결과 해석
 
-CPU에서 데이터 분할 파일과 모델 구조는 일치했다. 이러한 구조적 정합성만으로 성능 우열을 판단할 수 없다.
+같은 20 epoch 예산에서 두 사전학습 모델의 영역 Recall과 IoU가 Random보다 높았다. ADE20K와 Cityscapes는 차이가 작고 오탐 예산도 달랐다. ADE20K 개선은 1,000–<5,000 px 구간에 집중됐으며 1,000 px 미만에서는 Cityscapes가 더 많이 검출했다.
 
 ## 한계
 
@@ -141,11 +141,11 @@ CPU에서 데이터 분할 파일과 모델 구조는 일치했다. 이러한 �
 
 ## 결론
 
-공식 ADE20K 로드와 랜덤 초기화 검증을 완료했다. GPU 진단 및 Smoke, 정식 학습과 평가가 남았다.
+정식 학습과 잠정 Validation, 확률맵 재계산을 완료했다. 단일 seed 및 팀 공통 평가 전 결과이므로 최적 초기화 방식 확정은 보류한다.
 
 ## 후속 실험 방향
 
-GPU 진단으로 Val Dice overflow 분리 여부를 보고한다. 이후 팀 공통 평가기로 세 run의 Validation 확률맵을 동일 프로토콜에서 재평가한다.
+팀 공통 평가기로 세 run의 Validation 확률맵을 재평가한다. 승인된 후속 설계에서 FPR을 맞춘 비교·seed 반복, 공통 미탐·경계 및 Clean 주석 사례 검토를 고려한다.
 
 ## 관련 코드 및 산출물 경로
 

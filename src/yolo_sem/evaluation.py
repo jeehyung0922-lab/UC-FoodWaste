@@ -30,6 +30,34 @@ def checked_threshold(output, identity):
     return frozen["threshold"]
 
 
+def write_common_input_metadata(destination, prediction):
+    """Declare the probability export contract for the common Validation evaluator."""
+    classes = prediction["identity"]["evaluation_config"]["names"]
+    if (prediction["split"] != "val" or prediction["images"] != 84
+            or prediction["tensor_shape"] != [1, 3, 512, 768]
+            or classes != ["Background", "Contaminant"]):
+        return
+    metadata = {
+        "positive_class": "Contaminant",
+        "grid": "ucfw-val-512x768-aligned",
+        "quantity": "probability",
+        "thresholded": False,
+        "probability_method": (
+            "YOLO semantic logits with Background=0 and Contaminant=1. Prepared RGB and GT "
+            "share the fixed H512 x W768 Validation grid (bilinear RGB resize and nearest-neighbor mask resize). "
+            "Inference uses prepared RGB directly, scaled by 1/255, with no letterbox or crop. "
+            "Float32 logits are resized to the input grid by bilinear interpolation "
+            "(align_corners=False), followed by channel-wise softmax. Channel 1 is saved "
+            "as an unthresholded float32 .npy array using the Validation image ID."
+        ),
+        "parameters": prediction["parameters"],
+        "inference_ms": prediction["mean_inference_ms"],
+    }
+    with (destination / "input_metadata.json").open("x", encoding="utf-8") as stream:
+        json.dump(metadata, stream, indent=2, allow_nan=False)
+        stream.write("\n")
+
+
 def predict(args, config, output, split):
     import torch
     from ultralytics import YOLO
@@ -66,11 +94,13 @@ def predict(args, config, output, split):
             torch.cuda.synchronize(device)
             timings.append((time.perf_counter() - start) * 1000)
             np.save(destination / f"{name}.npy", result[0].cpu().numpy(), allow_pickle=False)
-    write_json(destination / "manifest.json", {"identity": identity, "split": split, "images": len(rows),
+    manifest = {"identity": identity, "split": split, "images": len(rows),
                "parameters": sum(p.numel() for p in model.parameters()), "tensor_shape": list(tensor.shape),
                "mean_inference_ms": float(np.mean(timings)), "median_inference_ms": float(np.median(timings)),
                "peak_gpu_allocated_bytes": torch.cuda.max_memory_allocated(device),
-               "timing_scope": "CUDA forward, logits interpolation and softmax, batch=1 fp32, one warm-up"})
+               "timing_scope": "CUDA forward, logits interpolation and softmax, batch=1 fp32, one warm-up"}
+    write_json(destination / "manifest.json", manifest)
+    write_common_input_metadata(destination, manifest)
 
 
 def evaluate(args, config, output, split, calibrate=False):

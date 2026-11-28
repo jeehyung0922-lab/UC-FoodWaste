@@ -26,9 +26,26 @@
 
 - Validation Manifest의 영역 ID 242개가 모두 고유하며 각 이미지의 원본 순서에 따라 연속적인 `pNNN` 번호를 갖는다. 세 모델의 전체 Threshold 후보 3,006행에서 `sPRO ≥ Region Recall`을 확인했다. 검출된 영역은 두 지표 모두 1을 기여하며, 미탐 영역은 sPRO에 0 이상의 값을 기여한다. AUsPRO는 중복 FPR의 최대 sPRO, 상한 관측값과 선형 보간, 적분 범위 부족을 단위 테스트로 확인했다.
 - 최종 소스의 단위 테스트 14개가 통과했다. 한글·공백이 있는 확률맵·메타데이터·GT·결과 경로에서 CLI 세 모델과 Tkinter GUI를 실행했다. 이전 v0.1 대비 각 평가의 Threshold·이미지·영역·sweep 파일 네 개가 SHA-256 기준으로 일치했고, GUI가 생성한 제출 선언의 SHA-256도 평가 Manifest와 일치했다.
-- Windows 11 x64, Python 3.12.10, Tcl/Tk 8.6.15, PyInstaller 6.19.0으로 빌드했다. 복사한 최종 EXE의 실행은 검증 환경의 Windows Application Control 정책에 차단됐다. 이 빌드의 실행 확인과 Python이 설치되지 않은 별도 Windows 환경에서의 확인은 배포 전 남아 있다. EXE 해시는 빌드가 생성한 `SHA256SUMS.txt`에 기록한다.
+- Windows 11 x64, Python 3.12.10, Tcl/Tk 8.6.15, PyInstaller 6.19.0으로 빌드했다. 최종 CLI EXE는 이 PC에서 Smart App Control에 의해 시작 단계에서 차단됐다. Win32 오류는 `4551`, Code Integrity 이벤트는 `3077`, 상태는 `0xC0E90002`였다. CLI 차단과 Python 미설치 별도 Windows PC에서의 실행 검증은 미해결로 유지한다. EXE 해시는 빌드가 생성한 `SHA256SUMS.txt`에 기록한다.
 - 이전 기록의 Exp01·Exp02 산출물 및 고정 Split 1,173개를 SHA-256으로 다시 대조했다. 이번 최종 검증에서는 기존 Validation 팩만 사용했으며 Test Annotation·이미지·GT·확률맵에 접근하지 않았다. 원본에서 팩을 새로 만드는 검증은 Validation 전용 주석 CSV를 확보한 환경에서 수행한다.
 
 - 단위 테스트 12개는 정답이 알려진 예측, 경계·겹침 Polygon, 영면적, 분모 0, 고정 FPR 동률, 사다리꼴 보간, 입력 오류, GT·split·팩 검증을 포함한다. Threshold 최적화의 벡터 방식은 1,002개 후보의 직접 픽셀 비교와 일치했다.
 - `runs/common_evaluation/`에 Validation 자산팩과 3개 평가 결과, 비교표를 저장한다. 기존 Exp01·Exp02 디렉터리와 비교 기록은 보존했다. Windows PyInstaller 결과의 빌드 버전과 소스 SHA는 배포 폴더의 `build_info.json`에 기록한다.
 - 검수 우선순위는 Polygon rasterization과 GT 경계 차이 처리, sPRO 포화 수식 및 AUsPRO 보간 규칙에 대한 팀 합의, 권한을 확인한 Validation 팩의 배포다.
+
+### 최종 GUI EXE 수동 실행 확인
+
+2026-11-27 사용자가 `team_release_v01/UC-FoodWaste-Evaluator.exe`에서 Exp02-A ADE20K Validation 평가를 완료했다. EXE SHA-256은 `68280084a117d2d09fbfc6ed1fac11c6a29d5d8f8f2a17f5f19539915ae5dfd3`이며, GUI 결과의 빌드 메타데이터는 해당 배포 폴더의 `build_info.json`과 일치했다.
+
+| Threshold | Region Recall | IoU | Pixel Recall | Pixel Precision | Pixel FPR | sPRO | AUsPRO |
+|---:|---:|---:|---:|---:|---:|---:|---:|
+| 0.37 | 92.5620% | 84.7854% | 93.6734% | 89.9354% | 1.9967% | 93.1951% | 88.6691% |
+
+- 사용자 홈의 `UC-FoodWaste Evaluations/20261127-172302-560552/`와 기존 `runs/common_evaluation/validated_v01/ADE20K/`를 대조했다. `selected_threshold.json`과 이미지·영역·그룹·크기별 지표, GT 감사, threshold sweep CSV 6개가 SHA-256 기준으로 일치했다.
+- `evaluation_summary.json`은 표시 모델명만 달랐다. SVG 4개도 모델명을 통일하면 바이트 단위로 일치했다. 평가 Manifest의 확률맵 84장, GT 팩 및 프로토콜 해시는 기준 결과와 같았다. 차이는 빌드 정보와 제출 메타데이터였으며, GUI가 생성한 `input_metadata.json`의 SHA-256은 해당 Manifest와 일치했다.
+
+### 팀원 전달 파일과 사용 순서
+
+1. `UC-FoodWaste-Evaluator.exe`, `SHA256SUMS.txt`, `build_info.json`, [한글 사용·확률맵 생성 가이드](README.md)를 전달한다. `ucfw-evaluate.exe`는 자산 생성 및 CLI용이며 팀 PC의 실행 정책이 허용하는 환경에서 사용한다.
+2. 각 팀원은 권한 있는 원본으로 생성하고 기준 해시와 대조한 `validation_assets/`를 EXE 옆에 둔다. 내부 파일은 `asset_manifest.json`, `region_manifest.json`, `validation_pixels.npz`다. GT 팩 재배포 권한 확인 전에는 배포 묶음과 GitHub에 포함하지 않는다.
+3. GUI에서 **폴더 선택 → 평가 시작**을 누른다. 고정 Validation 확률맵 84장을 사용하고, 제출 정보 파일이 없으면 실제 클래스 매핑·확률 변환·공간 정렬 방식을 입력한다. **결과 폴더 열기**로 CSV, JSON, SVG를 확인한다.

@@ -1,4 +1,16 @@
-# Exp01 RGB Baseline
+# UC-FoodWaste 실험 기록
+
+## SegFormer-B0 연구
+
+| 실험 ID | 상태 | 범위 |
+|---|---|---|
+| [SF-RGB-R01](docs/experiments/SF-RGB-R01.md) | 로컬 구성 완료, 재현 미실행 | 팀원 RGB 체크포인트의 Validation 추론 재현 |
+| `SF-RGB-T01` | 미승인 | 필요 시 기존 RGB 설정의 재학습 |
+| `SF-SENSOR-*` | 미승인 | 센서 가용성과 RGB 재현 검수 이후 비교 설계 |
+
+원본 ZIP, 체크포인트와 Split 식별 정보는 [SegFormer 원본 기록](SegFormer/OVERVIEW.md)에 있다. 기존 팀 제출은 CPU FP32이며, 공통 평가기 v0.1에서 229/242개 영역을 탐지했다. 재현에서는 고정 Threshold 0.137과 재선정 Threshold 결과를 구분해 기록한다.
+
+## 기존 YOLO 연구 · Exp01 RGB Baseline
 
 ## 실험 비교 인덱스
 

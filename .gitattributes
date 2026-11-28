@@ -1,2 +1,11 @@
 # Reproduce the historical split file bytes on Windows and Linux/Colab.
 metadata/data_split.csv text eol=crlf
+
+# Preserve the team delivery bytes across Git checkouts.
+SegFormer/README_KO.md -text
+SegFormer/requirements.txt -text
+SegFormer/segformer.py -text
+SegFormer/dataset.py -text
+SegFormer/data_split.csv -text
+SegFormer/checkpoints/rgb_baseline/* -text
+SegFormer/reference/rgb_common_evaluation.json -text

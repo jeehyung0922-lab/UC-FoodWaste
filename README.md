@@ -1,6 +1,13 @@
-# UC-FoodWaste · YOLO26s-sem 연구 저장소
+# UC-FoodWaste · SegFormer-B0 연구 저장소
 
-## 연구 문서
+현재 연구는 팀원 SegFormer-B0 RGB 체크포인트의 Validation 성능 재현부터 시작한다. 팀원 원본을 `SegFormer/`에 보존했고, 최초 서버 실행과 재현 검증은 로컬 구성 검수 이후 진행한다. MSI와 Thermal 비교는 RGB 재현 이후 별도 설계한다.
+
+- [SegFormer 독립 설치·실행 및 서버 검증](SegFormer/README.md)
+- [팀원 원본·Split·체크포인트 식별 기록](SegFormer/OVERVIEW.md)
+- [SF-RGB-R01 재현 계획](docs/experiments/SF-RGB-R01.md)
+- [Common Evaluator v0.1](common_evaluator/README.md)
+
+## 기존 YOLO 연구 문서
 
 - [연구 개요](docs/RESEARCH_OVERVIEW.md) · [전체 파이프라인](docs/PIPELINE.md) · [데이터셋](docs/DATASET.md)
 - [YOLO26s-sem 모델](docs/MODEL.md) · [평가 프로토콜](docs/EVALUATION.md)
@@ -8,13 +15,15 @@
 - [공통 실험 템플릿](docs/experiments/EXPERIMENT_TEMPLATE.md) · [Exp01 결과](docs/experiments/Exp01_RGB_Baseline.md) · [실험 인덱스](EXPERIMENT_LOG.md)
 - [구조도와 시각화 재생성](docs/figures/README.md)
 
-YOLO26s-sem으로 음식물 폐기물 영상에서 이물질 픽셀을 검출한다. Exp01은 RGB, Background/Contaminant 2클래스, H512×W768과 고정 split을 사용한다. Train 374장으로 학습하고 Validation 84장으로 체크포인트와 threshold를 정한다. 최종 Test는 사용자 승인 후 실행한다.
+기존 YOLO26s-sem Exp01은 RGB, Background/Contaminant 2클래스, H512×W768과 고정 split을 사용했다. Train 374장으로 학습하고 Validation 84장으로 체크포인트와 threshold를 정하는 파이프라인을 보존한다. 최종 Test는 사용자 승인 후 실행한다.
 
 ## 저장소 구성
 
 | 경로 | 역할 |
 |---|---|
-| `configs/yolo/`, `requirements-yolo.txt` | 실험 설정과 활성 Python 의존성 |
+| `SegFormer/` | 활성 연구 프로젝트 및 보존된 팀원 코드 |
+| `common_evaluator/` | 모델 독립 Validation 평가기 v0.1 |
+| `configs/yolo/`, `requirements-yolo.txt` | 보존된 YOLO 실험 설정 및 Python 의존성 |
 | `scripts/yolo/`, `src/yolo_sem/` | 데이터 준비, 학습, 확률맵 생성, threshold 선정과 평가 |
 | `scripts/visualization/`, `docs/figures/` | CPU 시각화, 비교 도구와 연구 그림 |
 | `metadata/data_split.csv`, `data/` | 고정 split, 공통 데이터, 준비 데이터 및 가중치 |
@@ -25,7 +34,7 @@ YOLO26s-sem으로 음식물 폐기물 영상에서 이물질 픽셀을 검출한
 
 대용량 데이터, 가중치, 실행 결과는 기존 Git 제외 정책을 따른다. 새 실험은 [평가 프로토콜](docs/EVALUATION.md)과 [공통 실험 양식](docs/experiments/EXPERIMENT_TEMPLATE.md)에 따라 기록한다.
 
-## Exp01 · YOLO26s-sem RGB Baseline
+## 기존 Exp01 · YOLO26s-sem RGB Baseline
 
 ### 1. Clone과 Python 환경
 
